@@ -107,13 +107,22 @@ public extension Japx.Encoder {
         /// - Tag: includeMetaToCommonNamespce
         public var includeMetaToCommonNamespce: Bool = false
         
+        /// When set to `true` an empty relationships object will be send  as empty JSON object `"relationships": {}`.
+        /// When set to `false` an empty object will be removed from the encoded data
+        ///
+        /// Defaults to ture. Empty JSON object will be sent.
+        ///
+        /// - Tag: includeEmptyRelationships
+        public var includeEmptyRelationships: Bool = true
+        
         /// Creates an instance with the specified properties.
         ///
         /// - parameter includeMetaToCommonNamespce: Read more [here](includeMetaToCommonNamespce)
         ///
         /// - returns: The new `Japx.Decoder.Options` instance.
-        public init(includeMetaToCommonNamespce: Bool = false) {
+        public init(includeMetaToCommonNamespce: Bool = false, includeEmptyRelationships: Bool = true) {
             self.includeMetaToCommonNamespce = includeMetaToCommonNamespce
+            self.includeEmptyRelationships = includeEmptyRelationships
         }
     }
 }
@@ -520,7 +529,15 @@ private extension Japx.Encoder {
             object.removeValue(forKey: key)
         }
         object[Consts.APIKeys.attributes] = attributes
-        object[Consts.APIKeys.relationships] = relationships
+        
+        if relationships.isEmpty {
+            if options.includeEmptyRelationships {
+                object[Consts.APIKeys.relationships] = relationships
+            }
+        } else {
+            object[Consts.APIKeys.relationships] = relationships
+        }
+        
         return object
     }
     
